@@ -209,7 +209,10 @@ TOKEN: { /* Tipo de Dato */
   | <BOOLEANO: "verdadero" | "falso">
 }
 
-/* Identificadores */
+TOKEN: { /* Identificadores ID */
+    <ID: "id_" (["a"-"z"]|["A"-"Z"])(["a"-"z"]|["A"-"Z"]|["0"-"9"]|"_")*>
+}
+
 TOKEN: { /* Constantes */
     <CONSTANTE: "miaunstante_" (["a"-"z", "A"-"Z", "0"-"9"])+ >
 }

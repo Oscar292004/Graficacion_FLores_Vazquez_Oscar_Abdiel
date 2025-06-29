@@ -1,0 +1,17 @@
+inicio
+miVariable = 123;
+acción  # esta variable tiene tilde
+$var    # símbolo no válido
+imprimir("hola mundo");
+@      
+%       
+# 
+'a
+"Holaa
+fin
+1variable=2
+2variable
+0 = 1
+variable_2
+num3
+2.2.5
