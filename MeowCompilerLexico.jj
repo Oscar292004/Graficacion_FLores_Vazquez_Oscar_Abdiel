@@ -78,7 +78,7 @@ public class MeowCompilerLexico {
                             errores.append("Se esperaba: palabra reservada, identificador, número u operador válido.\n");
                             continue;
 
-                        case MeowCompilerLexicoConstants.ERROR_CADENA:
+                        case MeowCompilerLexicoConstants.ERROR_TEXTO:
                             huboErrores = true;
                             errores.append("\nError léxico en línea ").append(token.beginLine)
                                 .append(", columna ").append(token.beginColumn).append("\n");
@@ -91,6 +91,20 @@ public class MeowCompilerLexico {
                                 .append(", columna ").append(token.beginColumn).append("\n");
                             errores.append("Carácter sin cerrar con comillas simples (').\n");
                             continue;
+
+                        case MeowCompilerLexicoConstants.ERROR_NUMERO_INVALIDO:
+                            huboErrores = true;
+                            errores.append("\nError léxico en línea ").append(token.beginLine)
+                                 .append(", columna ").append(token.beginColumn).append("\n");
+                            errores.append("El número no es válido.\n");
+                            continue;
+
+                        case MeowCompilerLexicoConstants.ERROR_IDENTIFICADOR_INVALIDO:
+                             huboErrores = true;
+                             errores.append("\nError léxico en línea ").append(token.beginLine)
+                                  .append(", columna ").append(token.beginColumn).append("\n");
+                             errores.append("Variable no válida: Debe comenzar con una letra.\n");
+                             continue;
 
                         default:
                             nombreToken = MeowCompilerLexicoConstants.tokenImage[token.kind]
@@ -209,7 +223,11 @@ TOKEN: { /* Variables */
 }
 
 TOKEN: {    /* Tokens de error */
-    <ERROR_SIMBOLO: ~[]>
-  | <ERROR_CADENA: "\"" (~["\"","\n","\r"])* >
+    <ERROR_TEXTO: "\"" (~["\"","\n","\r"])* >
   | <ERROR_CARACTER: "'" (~["'","\n","\r"])* >
+  | <ERROR_NUMERO_INVALIDO: (["0" - "9"])+ "." | (["0"-"9"])* "." (["0"-"9"])+ "." (["0"-"9"])* >
+  | <ERROR_IDENTIFICADOR_INVALIDO: (["0"-"9"]) (["a"-"z", "A"-"Z", "0"-"9", "_"])* >
+}
+TOKEN: {   /* Token cualquier error no reconocido  */
+    <ERROR_SIMBOLO: ~[]>
 }
