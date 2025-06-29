@@ -1,0 +1,173 @@
+options {
+    IGNORE_CASE = true;
+}
+// Analizador léxico
+PARSER_BEGIN(MeowCompilerLexico)
+
+public class MeowCompilerLexico {
+    public static void main(String[] args) throws Exception {
+                MeowCompilerLexico lexer = new MeowCompilerLexico(System.in);
+                Token token;
+                while ((token = lexer.getNextToken()).kind != 0) {
+                    String nombreToken;
+                    switch (token.kind) {
+                        // Palabras reservadas
+                        case MeowCompilerLexicoConstants.INICIO: nombreToken = "INICIO"; break;
+                        case MeowCompilerLexicoConstants.FIN: nombreToken = "FIN"; break;
+                        case MeowCompilerLexicoConstants.LEER: nombreToken = "LEER"; break;
+                        case MeowCompilerLexicoConstants.IMPRIMIR: nombreToken = "IMPRIMIR"; break;
+                        case MeowCompilerLexicoConstants.SI: nombreToken = "SI"; break;
+                        case MeowCompilerLexicoConstants.SINO: nombreToken = "SINO"; break;
+                        case MeowCompilerLexicoConstants.MIENTRAS: nombreToken = "MIENTRAS"; break;
+                        case MeowCompilerLexicoConstants.PARA: nombreToken = "PARA"; break;
+                        case MeowCompilerLexicoConstants.OP_ARR: nombreToken = "OP_ARR"; break;
+                        case MeowCompilerLexicoConstants.OP_MAT: nombreToken = "OP_MAT"; break;
+                        // Operadores incremento / decremento
+                        case MeowCompilerLexicoConstants.INCREMENTO: nombreToken = "INCREMENTO"; break;
+                        case MeowCompilerLexicoConstants.DECREMENTO: nombreToken = "DECREMENTO"; break;
+                        // Operadores aritméticos
+                        case MeowCompilerLexicoConstants.SUMA: nombreToken = "SUMA"; break;
+                        case MeowCompilerLexicoConstants.RESTA: nombreToken = "RESTA"; break;
+                        case MeowCompilerLexicoConstants.MULTIPLICACION: nombreToken = "MULTIPLICACION"; break;
+                        case MeowCompilerLexicoConstants.DIVISION: nombreToken = "DIVISION"; break;
+                        // Operadores comparación
+                        case MeowCompilerLexicoConstants.MENOR: nombreToken = "MENOR"; break;
+                        case MeowCompilerLexicoConstants.MAYOR: nombreToken = "MAYOR"; break;
+                        case MeowCompilerLexicoConstants.MENOR_IGUAL: nombreToken = "MENOR_IGUAL"; break;
+                        case MeowCompilerLexicoConstants.MAYOR_IGUAL: nombreToken = "MAYOR_IGUAL"; break;
+                        case MeowCompilerLexicoConstants.IGUAL_COMPARACION: nombreToken = "IGUAL_COMPARACION"; break;
+                        case MeowCompilerLexicoConstants.IGUAL_ASIGNACION: nombreToken = "IGUAL_ASIGNACION"; break;
+                        case MeowCompilerLexicoConstants.DIFERENTE: nombreToken = "DIFERENTE"; break;
+                        // Operadores lógicos
+                        case MeowCompilerLexicoConstants.Y_LOGICO: nombreToken = "Y_LOGICO"; break;
+                        case MeowCompilerLexicoConstants.O_LOGICO: nombreToken = "O_LOGICO"; break;
+                        case MeowCompilerLexicoConstants.NO_LOGICO: nombreToken = "NO_LOGICO"; break;
+                        // Delimitadores
+                        case MeowCompilerLexicoConstants.ABRIR_LLAVE: nombreToken = "ABRIR_LLAVE"; break;
+                        case MeowCompilerLexicoConstants.CERRAR_LLAVE: nombreToken = "CERRAR_LLAVE"; break;
+                        case MeowCompilerLexicoConstants.ABRIR_PARENTESIS: nombreToken = "ABRIR_PARENTESIS"; break;
+                        case MeowCompilerLexicoConstants.CERRAR_PARENTESIS: nombreToken = "CERRAR_PARENTESIS"; break;
+                        case MeowCompilerLexicoConstants.ABRIR_CORCHETE: nombreToken = "ABRIR_CORCHETE"; break;
+                        case MeowCompilerLexicoConstants.CERRAR_CORCHETE: nombreToken = "CERRAR_CORCHETE"; break;
+                        case MeowCompilerLexicoConstants.DELIMITADOR: nombreToken = "DELIMITADOR"; break;
+                        case MeowCompilerLexicoConstants.DOS_PUNTOS: nombreToken = "DOS_PUNTOS"; break;
+                        case MeowCompilerLexicoConstants.COMA: nombreToken = "COMA"; break;
+                        // Tipos de dato
+                        case MeowCompilerLexicoConstants.NUMERO: nombreToken = "NUMERO"; break;
+                        case MeowCompilerLexicoConstants.DECIMAL: nombreToken = "DECIMAL"; break;
+                        case MeowCompilerLexicoConstants.CARACTER: nombreToken = "CARACTER"; break;
+                        case MeowCompilerLexicoConstants.TEXTO: nombreToken = "TEXTO"; break;
+                        case MeowCompilerLexicoConstants.BOOLEANO: nombreToken = "BOOLEANO"; break;
+                        // ID
+                        case MeowCompilerLexicoConstants.ID: nombreToken = "ID"; break;
+                        // Constantes
+                        case MeowCompilerLexicoConstants.CONSTANTE: nombreToken = "CONSTANTE"; break;
+                        // Variables
+                        case MeowCompilerLexicoConstants.VARIABLE: nombreToken = "VARIABLE"; break;
+                        default:
+                            // para cualquier token no previsto
+                            nombreToken = MeowCompilerLexicoConstants.tokenImage[token.kind]
+                                    .replaceAll("^\"|\"$", "")
+                                    .replaceAll("^<|>$", "");
+                    }
+                    System.out.println("TOKEN " + nombreToken + " --> " + token.image);
+                }
+            }
+    }
+PARSER_END(MeowCompilerLexico)  //Va al final de todos los elementos y funciones
+
+SKIP :{     /* comentarios */
+    "/*" : WithinComment}
+<WithinComment> SKIP : {"*/" : DEFAULT}
+<WithinComment> MORE :{<~[]>}
+
+SKIP: {     /* secuencia de escape */
+    " "
+  | "\r"
+  | "\t"
+  | "\n"
+}
+
+TOKEN : { /* Palabras Reservadas */
+    <INICIO: "inicio" >
+  | <FIN: "fin">
+  | <LEER: "leer">
+  | <IMPRIMIR: "imprimir">
+}
+
+TOKEN :{   /* 2 Condicionales */
+    <SI: "si">
+  | <SINO: "sino">
+}
+
+TOKEN :{   /* 2 Ciclos */
+    <MIENTRAS: "mientras">
+  | <PARA: "para">
+}
+
+TOKEN :{  /* Arreglos Matrices */
+    <OP_ARR: "arreglo">
+  | <OP_MAT: "matriz">
+}
+
+TOKEN : {  /* Operadores de incremento y decremento */
+    <INCREMENTO: "++">
+  | <DECREMENTO: "--">
+}
+
+TOKEN: {  /* Operadores aritmeticos */
+    <SUMA: "+">
+   |<RESTA: "-">
+   |<MULTIPLICACION: "*">
+   |<DIVISION: "/">
+}
+
+TOKEN: {   /* Operadores de comparacion */
+    <MENOR: "<">
+  | <MAYOR: ">">
+  | <MENOR_IGUAL: "<=">
+  | <MAYOR_IGUAL: ">=">
+  | <IGUAL_COMPARACION: "==">
+  | <IGUAL_ASIGNACION: "=">
+  | <DIFERENTE: "!=">
+}
+
+TOKEN: {   /* Operadores logicos */
+    <Y_LOGICO: "&&">
+  | <O_LOGICO: "||">
+  | <NO_LOGICO: "!">
+}
+
+TOKEN: { /* Delimitadores */
+    <ABRIR_LLAVE: "{">
+  | <CERRAR_LLAVE: "}">
+  | <ABRIR_PARENTESIS: "(">
+  | <CERRAR_PARENTESIS: ")">
+  | <ABRIR_CORCHETE: "[">
+  | <CERRAR_CORCHETE: "]">
+  | <DELIMITADOR: ";">
+  | <DOS_PUNTOS: ":">
+  | <COMA: ",">
+}
+
+TOKEN: { /* Tipo de Dato */
+    <NUMERO: (["0"-"9"])+>
+  | <DECIMAL: (["0"-"9"])+ "." (["0"-"9"])+>
+  | <CARACTER: "'" (~["'", "\\", "\n", "\r"]) "'" >
+  | <TEXTO: "\"" ( "\\\\" | "\\\"" | "\\n" | "\\t" | ~["\"","\\","\n"] )+ "\"">
+  | <BOOLEANO: "verdadero" | "falso">
+}
+
+TOKEN: { /* Identificadores ID */
+    <ID: "id_" (["a"-"z"]|["A"-"Z"])(["a"-"z"]|["A"-"Z"]|["0"-"9"]|"_")*>
+}
+
+TOKEN: { /* Constantes */
+    <CONSTANTE: "miaunstante_" (["a"-"z","A"-"Z"]) (["a"-"z","A"-"Z","0"-"9","_"])*>
+}
+
+TOKEN: { /* Variables */
+    <VARIABLE: (["a"-"z","A"-"Z","á","é","í","ó","ú","Á","É","Í","Ó","Ú","ñ","Ñ"])
+    (["a"-"z","A"-"Z","á","é","í","ó","ú","Á","É","Í","Ó","Ú","ñ","Ñ","0"-"9","_"])*>
+
+}
