@@ -6,11 +6,15 @@ PARSER_BEGIN(MeowCompilerLexico)
 
 public class MeowCompilerLexico {
     public static void main(String[] args) throws Exception {
-                MeowCompilerLexico lexer = new MeowCompilerLexico(System.in);
-                Token token;
-                while ((token = lexer.getNextToken()).kind != 0) {
-                    String nombreToken;
+        MeowCompilerLexico lexer = new MeowCompilerLexico(System.in);
+        Token token;
+        boolean huboErrores = false;
+        StringBuilder errores = new StringBuilder();
+
+        while ((token = lexer.getNextToken()).kind != 0) {
+            String nombreToken;
                     switch (token.kind) {
+                        /* Imprime el par ordenado */
                         // Palabras reservadas
                         case MeowCompilerLexicoConstants.INICIO: nombreToken = "INICIO"; break;
                         case MeowCompilerLexicoConstants.FIN: nombreToken = "FIN"; break;
@@ -64,28 +68,61 @@ public class MeowCompilerLexico {
                         case MeowCompilerLexicoConstants.CONSTANTE: nombreToken = "CONSTANTE"; break;
                         // Variables
                         case MeowCompilerLexicoConstants.VARIABLE: nombreToken = "VARIABLE"; break;
+
+                        /* errores */
+                        case MeowCompilerLexicoConstants.ERROR_SIMBOLO:
+                            huboErrores = true;
+                            errores.append("\nError léxico en línea ").append(token.beginLine)
+                                .append(", columna ").append(token.beginColumn).append("\n");
+                            errores.append("Símbolo no válido: '").append(token.image).append("'\n");
+                            errores.append("Se esperaba: palabra reservada, identificador, número u operador válido.\n");
+                            continue;
+
+                        case MeowCompilerLexicoConstants.ERROR_CADENA:
+                            huboErrores = true;
+                            errores.append("\nError léxico en línea ").append(token.beginLine)
+                                .append(", columna ").append(token.beginColumn).append("\n");
+                            errores.append("Texto sin cerrar con comillas dobles (\").\n");
+                            continue;
+
+                        case MeowCompilerLexicoConstants.ERROR_CARACTER:
+                            huboErrores = true;
+                            errores.append("\nError léxico en línea ").append(token.beginLine)
+                                .append(", columna ").append(token.beginColumn).append("\n");
+                            errores.append("Carácter sin cerrar con comillas simples (').\n");
+                            continue;
+
                         default:
-                            // para cualquier token no previsto
                             nombreToken = MeowCompilerLexicoConstants.tokenImage[token.kind]
                                     .replaceAll("^\"|\"$", "")
                                     .replaceAll("^<|>$", "");
+                            break;
                     }
                     System.out.println("TOKEN " + nombreToken + " --> " + token.image);
                 }
+
+                if (huboErrores) {
+                    System.out.println("\nANÁLISIS LÉXICO CON ERRORES");
+                    System.out.println(errores.toString());
+                } else {
+                    System.out.println("\nANÁLISIS LÉXICO EXITOSO");
             }
+        }
     }
-PARSER_END(MeowCompilerLexico)  //Va al final de todos los elementos y funciones
 
-SKIP :{     /* comentarios */
-    "/*" : WithinComment}
-<WithinComment> SKIP : {"*/" : DEFAULT}
-<WithinComment> MORE :{<~[]>}
+PARSER_END(MeowCompilerLexico)  /* Va al final de todos los elementos y funciones */
 
-SKIP: {     /* secuencia de escape */
+SKIP: {    /* ignorar saltos de linea o espacios */
     " "
-  | "\r"
   | "\t"
+  | "\r"
   | "\n"
+
+}
+
+SKIP : {
+    <COMENTARIO: "#" (~["\r", "\n"])* >
+
 }
 
 TOKEN : { /* Palabras Reservadas */
@@ -163,10 +200,16 @@ TOKEN: { /* Identificadores ID */
 }
 
 TOKEN: { /* Constantes */
-    <CONSTANTE: "miaunstante_" (["a"-"z","A"-"Z"]) (["a"-"z","A"-"Z","0"-"9","_"])*>
+    <CONSTANTE: "miaunstante_" (["a"-"z", "A"-"Z", "0"-"9"])+ >
 }
 
 TOKEN: { /* Variables */
-    <VARIABLE: (["a"-"z", "A"-"Z"]) (["a"-"z", "A"-"Z", "0"-"9", "_"])* >
+    <VARIABLE: (["a"-"z","A"-"Z","á","é","í","ó","ú","Á","É","Í","Ó","Ú","ñ","Ñ"])
+    (["a"-"z","A"-"Z","á","é","í","ó","ú","Á","É","Í","Ó","Ú","ñ","Ñ","0"-"9","_"])*>
+}
 
+TOKEN: {    /* Tokens de error */
+    <ERROR_SIMBOLO: ~[]>
+  | <ERROR_CADENA: "\"" (~["\"","\n","\r"])* >
+  | <ERROR_CARACTER: "'" (~["'","\n","\r"])* >
 }
