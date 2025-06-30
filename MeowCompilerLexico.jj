@@ -197,7 +197,6 @@ TOKEN: { /* Delimitadores */
   | <ABRIR_CORCHETE: "[">
   | <CERRAR_CORCHETE: "]">
   | <DELIMITADOR: ";">
-  | <DOS_PUNTOS: ":">
   | <COMA: ",">
 }
 
